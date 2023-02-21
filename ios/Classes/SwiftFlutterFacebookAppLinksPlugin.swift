@@ -35,7 +35,12 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
               print("Error %a", error)
           }
           if let url = url {
-              self.deepLinkUrl = url.absoluteString
+              
+              if #available(iOS 10, *) {
+                                  UIApplication.shared.open(self.deepLinkUrl, options: [:], completionHandler: nil)
+                              } else {
+                                  UIApplication.shared.openURL(self.deepLinkUrl)
+                              }
               // self.sendMessageToStream(link: self.deepLinkUrl)
           }
       }
