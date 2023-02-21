@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class FlutterFacebookAppLinks {
   static const MethodChannel _channel =
-      const MethodChannel("plugins.remedia.it/flutter_facebook_app_links");
+  const MethodChannel("plugins.remedia.it/flutter_facebook_app_links");
 
   static Future<String?> get platformVersion async {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
@@ -15,30 +14,36 @@ class FlutterFacebookAppLinks {
 
     try{
       var data = await _channel.invokeMethod('initFBLinks');
-      print('Deferred FB Link: $data');
       return data ?? '';
-      
-    }catch(e){
-      debugPrint("Error retrieving deferred deep link: $e");
-
+    }catch(_){
       return null;
     }
-    
+
+  }
+
+
+  static Future<void> setAdvertiserTracking({
+    required bool enabled,
+    bool collectId = true,
+  }) {
+    final args = <String, dynamic>{
+      'enabled': enabled,
+      'collectId': collectId,
+    };
+
+    return _channel.invokeMethod<void>('setAdvertiserTracking', args);
   }
 
   static Future<String> getDeepLink() async {
 
+
     try{
       var data = await _channel.invokeMethod('getDeepLinkUrl');
-      print('Deferred FB Link: $data');
       return data ?? '';
-      
-    }catch(e){
-      debugPrint("Error retrieving deferred deep link: $e");
 
+    }catch(_){
       return '';
     }
-    
   }
 
 }

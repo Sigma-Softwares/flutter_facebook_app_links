@@ -12,9 +12,6 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
     let instance = SwiftFlutterFacebookAppLinksPlugin()
     let channel = FlutterMethodChannel(name: "plugins.remedia.it/flutter_facebook_app_links", binaryMessenger: registrar.messenger())
     
-    // Get user consent
-    print("FB APP LINK registering plugin")
-    
     instance.initializeSDK()
     
     registrar.addMethodCallDelegate(instance, channel: channel)
@@ -46,7 +43,7 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    
+
     switch call.method {
         case "getPlatformVersion":
             handleGetPlatformVersion(call, result: result)
@@ -55,15 +52,18 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
             ApplicationDelegate.shared.initializeSDK()
             result(nil)
             return
-        case "getDeepLinkUrl":    
+        case "getDeepLinkUrl":
             result(deepLinkUrl)
         case "activateApp":
             AppEvents.shared.activateApp()
             result(true)
+        case "setAdvertiserTracking":
+            handleSetAdvertiserTracking(call, result: result)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
-    
+
   }
 
   private func handleGetPlatformVersion(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -75,7 +75,12 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
     ApplicationDelegate.shared.initializeSDK()
   }
 
-  
+    private func handleSetAdvertiserTracking(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let arguments = call.arguments as? [String: Any] ?? [String: Any]()
+        let enabled = arguments["enabled"] as! Bool
+        let collectId = arguments["collectId"] as! Bool
+        Settings.shared.isAdvertiserTrackingEnabled = enabled
+        Settings.shared.isAdvertiserIDCollectionEnabled = collectId
+        result(nil)
+    }
 }
-
-
