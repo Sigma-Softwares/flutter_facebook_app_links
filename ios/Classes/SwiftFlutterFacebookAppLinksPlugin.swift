@@ -20,32 +20,29 @@ public class SwiftFlutterFacebookAppLinksPlugin: NSObject, FlutterPlugin {
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
     // detach
   }
-
-  public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [AnyHashable : Any] = [:]) -> Bool {
-
-      Settings.shared.isAdvertiserTrackingEnabled = false
-      let launchOptionsForFacebook = launchOptions as? [UIApplication.LaunchOptionsKey: Any]
-      ApplicationDelegate.shared.application(
-          application,
-          didFinishLaunchingWithOptions:
-              launchOptionsForFacebook
-      )
-      AppLinkUtility.fetchDeferredAppLink{ (url, error) in
-          if let error = error{
-              print("Error %a", error)
-          }
-          if let url = url {
-              
-              if #available(iOS 10, *) {
-                                  UIApplication.shared.open(self.deepLinkUrl, options: [:], completionHandler: nil)
-                              } else {
-                                  UIApplication.shared.openURL(self.deepLinkUrl)
-                              }
-              // self.sendMessageToStream(link: self.deepLinkUrl)
-          }
-      }
-      return true
-  }
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+            // Get user consent
+            Settings.isAutoInitEnabled = true
+            ApplicationDelegate.initializeSDK(nil)
+            AppLinkUtility.fetchDeferredAppLink { (url, error) in
+                if let error = error {
+                    print("Received error while fetching deferred app link %@", error)
+                }
+                if let url = url {
+                    if #available(iOS 10, *) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                        
+                        self.deepLinkUrl = url.absoluteString
+                    } else {
+                        UIApplication.shared.openURL(url)
+                        
+                        self.deepLinkUrl = url.absoluteString
+                    }
+                }
+            }
+            return true;
+    }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 
